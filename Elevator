@@ -1,0 +1,110 @@
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+// Enum to represent the status of the lift
+enum LiftStatus {
+    IDLE,
+    MOVING,
+    STOPPED
+};
+
+// Enum to represent the direction of the lift
+enum Direction {
+    UP,
+    DOWN,
+    NONE
+};
+
+// Class to represent a LiftRequest
+class LiftRequest {
+public:
+    int floor;
+    Direction direction;
+
+    LiftRequest(int floor, Direction direction) {
+        this->floor = floor;
+        this->direction = direction;
+    }
+};
+
+// Class to represent the Lift
+class Lift {
+private:
+    int currentFloor;
+    LiftStatus status;
+    Direction direction;
+    queue<int> requests;  // Queue to store floor requests
+
+public:
+    Lift() : currentFloor(0), status(IDLE), direction(NONE) {}
+
+    // Method to add a floor request
+    void addRequest(int floor) {
+        requests.push(floor);
+        if (status == IDLE) {
+            status = MOVING;
+        }
+    }
+
+    // Method to simulate the movement of the lift
+    void move() {
+        while (!requests.empty()) {
+            int nextFloor = requests.front();
+            requests.pop();
+            
+            if (nextFloor > currentFloor) {
+                direction = UP;
+                cout << "Lift moving up from " << currentFloor << " to " << nextFloor << endl;
+            } else if (nextFloor < currentFloor) {
+                direction = DOWN;
+                cout << "Lift moving down from " << currentFloor << " to " << nextFloor << endl;
+            } else {
+                cout << "Lift already at floor " << currentFloor << endl;
+            }
+            currentFloor = nextFloor;
+            status = STOPPED;
+            cout << "Lift stopped at floor " << currentFloor << endl;
+        }
+        status = IDLE;
+        direction = NONE;
+        cout << "Lift is now idle" << endl;
+    }
+
+    // Method to get the current floor of the lift
+    int getCurrentFloor() const {
+        return currentFloor;
+    }
+};
+
+// Class to represent the LiftController
+class LiftController {
+private:
+    Lift lift;
+    
+public:
+    void handleRequest(int floor, Direction direction) {
+        cout << "Handling request for floor " << floor << " in direction " << (direction == UP ? "UP" : "DOWN") << endl;
+        lift.addRequest(floor);
+    }
+
+    void runLift() {
+        lift.move();
+    }
+};
+
+// Main function to simulate the lift system
+int main() {
+    LiftController controller;
+
+    // Simulate some requests
+    controller.handleRequest(5, UP);
+    controller.handleRequest(2, DOWN);
+    controller.handleRequest(8, UP);
+
+    // Run the lift to process the requests
+    controller.runLift();
+
+    return 0;
+}
